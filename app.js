@@ -23,9 +23,9 @@ jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 jwtOptions.secretOrKey = config.jwtOptions.secretOrKey;
 // lets create our strategy for web token
 let strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {    
-  const sql=User.getUserByEmailId(jwt_payload.email_id);
+  const sql=User.getUserByCustomerId(jwt_payload.customer_id);
   db.query(sql, (err, data)=> { 
-  const userDetails=_.find(data, { 'email_id': jwt_payload.email_id});    
+  const userDetails=_.find(data, { 'customer_id': jwt_payload.customer_id});    
     if (userDetails) {
       next(null, jwt_payload);
     } else {

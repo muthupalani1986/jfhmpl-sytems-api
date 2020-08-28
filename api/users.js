@@ -9,25 +9,26 @@ var _ = require('lodash');
 const moment = require('moment');
 import Util from "../common/util";
 router.post("/login", (req, res, next) => {
-  const email_id = _.get(req, 'body.email_id');
-  const pwd = _.get(req, 'body.password');
-  const sql = User.getUserByEmailIdPwdSQL(email_id, pwd);
+  const customer_id = _.get(req, 'body.customer_id');
+  const pin = _.get(req, 'body.pin');
+  const sql = User.getUserByCustomerIdPinSQL(customer_id, pin);
+  console.log('sql',sql);
   db.query(sql, (err, data) => {
-    const userDetails = _.find(data, { 'email_id': email_id });
+    const userDetails = _.find(data, { 'customer_id': customer_id });
     if (userDetails) {
-      let payload = { email_id: userDetails.email_id, first_name: userDetails.first_name, last_name: userDetails.last_name, role_name: userDetails.role_name, role_id: userDetails.role_id };
+      let payload = { customer_id: userDetails.customer_id, customer_name: userDetails.customer_name};
       let token = jwt.sign(payload, config.jwtOptions.secretOrKey);
-      res.status(200).json({ statusCode:'0000',msg: 'User successly authenticated', token: token,email_id: userDetails.email_id, first_name: userDetails.first_name, last_name: userDetails.last_name, role_name: userDetails.role_name, role_id: userDetails.role_id});
+      res.status(200).json({ statusCode:'0000',msg: 'User successly authenticated', token: token,customer_name: userDetails.email_id, customer_name: userDetails.customer_name});
     } else {
       res.status(200).json({
-        msg: "Invalid username & password"
+        msg: "Invalid customer id & pin"
       });
     }
   });
 });
 router.post("/new", passport.authenticate('jwt', { session: false }), (req, res, next) => {
   const userDetails=Util.getUserDetails(req);
-  const newUser = new User(userDetails.first_name, userDetails.last_name, userDetails.email_id, userDetails.password, userDetails.role_id, userDetails.created_at, userDetails.updated_at);
+  const newUser = new User(userDetails.customer_id, userDetails.customer_name, userDetails.pin,userDetails.created_at, userDetails.updated_at);
   db.query(newUser.addUserSQL(), (err, data) => {
     if (!err) {
       res.status(200).json({
@@ -44,8 +45,8 @@ router.post("/new", passport.authenticate('jwt', { session: false }), (req, res,
 });
 
 router.post("/delete", passport.authenticate('jwt', { session: false }), (req, res, next) => {
-  const user_id = _.get(req, 'body.user_id');  
-  db.query(User.deleteUserByIdSQL(user_id), (err, data) => {    
+  const customer_id = _.get(req, 'body.customer_id');  
+  db.query(User.deleteUserByCustomerIdSQL(customer_id), (err, data) => {    
     if (!err) {
       res.status(200).json({
         message: "User deleted successfully."
@@ -60,9 +61,9 @@ router.post("/delete", passport.authenticate('jwt', { session: false }), (req, r
 
 router.post("/update", passport.authenticate('jwt', { session: false }), (req, res, next) => {
   const userDetails=Util.getUserDetails(req);
-  const user = new User(userDetails.first_name, userDetails.last_name, userDetails.email_id, userDetails.password,userDetails. role_id, userDetails.created_at, userDetails.updated_at);
-  const user_id = _.get(req, 'body.user_id');    
-  db.query(user.updateUserByIdSQL(user_id), (err, data) => {    
+  const user = new User(userDetails.customer_id, userDetails.customer_name, userDetails.pin,userDetails.created_at, userDetails.updated_at);
+  const customer_id = _.get(req, 'body.customer_id');    
+  db.query(user.updateUserByCustomerIdSQL(customer_id), (err, data) => {    
     if (!err) {
       res.status(200).json({
         message: "User updated successfully."
@@ -75,9 +76,9 @@ router.post("/update", passport.authenticate('jwt', { session: false }), (req, r
   });
 });
 
-router.post("/:user_Id", passport.authenticate('jwt', { session: false }), (req, res, next) => {
-  let user_id = _.get(req, 'params.user_Id');   
-  db.query(User.getUserById(user_id), (err, data) => {    
+router.post("/:customer_id", passport.authenticate('jwt', { session: false }), (req, res, next) => {
+  let customer_id = _.get(req, 'params.customer_id');   
+  db.query(User.getUserByCustomerId(customer_id), (err, data) => {    
     if (!err) {
       res.status(200).json(data[0]);
     } else {
