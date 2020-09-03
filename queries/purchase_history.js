@@ -24,7 +24,7 @@ class PurchaseHistory {
         return sql;
     }
     static getPurhaseHistoryByCustomerIdAndDate(customer_id,purchase_date) {
-        const sql = `SELECT cat.id as cat_id,cat.cat_ame, ph.weight,ph.rate,ph.weight_amount,ph.plc_amount from purchase_history ph INNER JOIN categories cat on cat.id=ph.category where ph.customer_id ='${customer_id}' and ph.purchase_date='${purchase_date}' order by cat_id asc`;
+        const sql = `SELECT cat.id as cat_id,cat.cat_name, ph.weight,ph.rate,ph.weight_amount,ph.plc_amount from purchase_history ph INNER JOIN categories cat on cat.id=ph.category where ph.customer_id ='${customer_id}' and ph.purchase_date='${purchase_date}' order by cat_id asc`;
         return sql;
     }
 }
